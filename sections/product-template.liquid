@@ -1,3 +1,13 @@
+{% for tag in product.tags %}
+
+ {% if tag contains 'affiliate' %}
+ 		{% assign amazon_link = true %}
+  	{% assign link = tag | split: '_' %}
+    {% assign affiliatelink = link[1] %}
+ {% endif %}
+{% endfor %}
+
+
 <div class="product-template__container page-width"
   id="ProductSection-{{ section.id }}"
   data-section-id="{{ section.id }}"
@@ -137,8 +147,11 @@
         <h1 class="product-single__title">{{ product.title }}</h1>
         <script>window.performance.mark('debut:product:title_visible');</script>
 
+
           <div class="product__price">
-          <div>⭐⭐⭐⭐⭐</div>
+          {% unless affiliatelink %} 
+            <div>⭐⭐⭐⭐⭐</div>
+          
             {% include 'product-price', variant: current_variant, show_vendor: section.settings.show_vendor %}
           </div>
 
@@ -152,6 +165,7 @@
               {%- endif -%}
             </div>
           {%- endif -%}
+          {% endunless %}
 
           {% capture "form_classes" -%}
             product-form product-form-{{ section.id }}
@@ -213,11 +227,13 @@
               <span class="product-form__error-message" data-error-message>{{ 'products.product.quantity_minimum_message' | t }}</span>
             </div>
 
+            
             <div class="product-form__controls-group product-form__controls-group--submit">
               <div class="product-form__item product-form__item--submit
                 {%- if section.settings.enable_payment_button %} product-form__item--payment-button {%- endif -%}
                 {%- if product.has_only_default_variant %} product-form__item--no-variants {%- endif -%}"
               >
+              {% unless affiliatelink %}
                 <button type="submit" name="add"
                   {% unless current_variant.available %} aria-disabled="true"{% endunless %}
                   aria-label="{% unless current_variant.available %}{{ 'products.product.sold_out' | t }}{% else %}{{ 'products.product.add_to_cart' | t }}{% endunless %}"
@@ -238,11 +254,19 @@
                 {% if section.settings.enable_payment_button %}
                   {{ form | payment_button }}
                 {% endif %}
+
+                {% else %}
+                  <a data-add-to-cart target= _blank class= "btn amazon_btn" href= "{{affiliatelink}}">See on Amazon</a>
+                  <style>.amazon_btn {width: 120%; text-align: center;} </style>
+                
+
+              {% endunless %}
+
               </div>
             </div>
           {% endform %}
         </div>
-
+            
         {%- comment -%}
           Live region for announcing updated price and availability to screen readers
         {%- endcomment -%}
